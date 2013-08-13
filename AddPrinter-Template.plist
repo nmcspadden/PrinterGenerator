@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>autoremove</key>
+	<false/>
+	<key>catalogs</key>
+	<array>
+		<string>testing</string>
+	</array>
+	<key>description</key>
+	<string>DESCRIPTION</string>
+	<key>display_name</key>
+	<string>DISPLAY_NAME</string>
+	<key>installcheck_script</key>
+	<string>#!/bin/sh
+
+# Based on 2010 Walter Meyer SUNY Purchase College (c)
+# Modified by Nick McSpadden, 2013
+
+# Script to install and setup printers on a Mac OS X system in a &quot;Munki-Friendly&quot; way.
+# Make sure to install the required drivers first!
+
+# Variables. Edit these.
+printername=&quot;PRINTERNAME&quot;.sacredsf.org
+location=&quot;LOCATION&quot;
+gui_display_name=$location
+address=$printername
+driver_ppd=&quot;/Library/Printers/PPDs/Contents/Resources/DRIVER&quot;
+currentVersion=&quot;3.0&quot;
+
+
+### Determine if receipt is installed ###
+if [ -e /private/etc/cups/deployment/receipts/$printername.plist ]; then
+	storedVersion=`/usr/libexec/PlistBuddy -c &quot;Print :version&quot; /private/etc/cups/deployment/receipts/$printername.plist`
+	echo &quot;Stored version: $storedVersion&quot;
+else
+	storedVersion=&quot;0&quot;
+fi
+
+versionComparison=`echo &quot;$storedVersion &lt; $currentVersion&quot; | bc -l`
+# This will be 0 if the current receipt is greater than or equal to current version of the script
+
+### Printer Install ###
+# If the queue already exists (returns 0), we don&apos;t need to reinstall it.
+/usr/bin/lpstat -p $printername
+if [ $? -eq 0 ]; then
+	if [ $versionComparison == 0 ]; then
+		# We are at the current or greater version
+		exit 1
+	fi
+    # We are of lesser version, and therefore we should delete the printer and reinstall.
+	exit 0
+fi
+
+</string>
+	<key>installer_type</key>
+	<string>nopkg</string>
+	<key>minimum_os_version</key>
+	<string>10.7.0</string>
+	<key>name</key>
+	<string>AddPrinter-PRINTERNAME</string>
+	<key>postinstall_script</key>
+	<string>#!/bin/sh
+
+# Variables. Edit these.
+printername=&quot;PRINTERNAME&quot;.sacredsf.org
+location=&quot;LOCATION&quot;
+gui_display_name=$location
+address=$printername
+driver_ppd=&quot;/Library/Printers/PPDs/Contents/Resources/DRIVER&quot;
+# Populate these options if you want to set specific options for the printer. E.g. duplexing installed, etc.
+option_1=&quot;HPOption_Duplexer=false&quot;
+option_2=&quot;&quot;
+option_3=&quot;&quot;
+currentVersion=&quot;3.0&quot;
+
+### Determine if receipt is installed ###
+if [ -e /private/etc/cups/deployment/receipts/$printername.plist ]; then
+	storedVersion=`/usr/libexec/PlistBuddy -c &quot;Print :version&quot; /private/etc/cups/deployment/receipts/$printername.plist`
+	echo &quot;Stored version: $storedVersion&quot;
+else
+	storedVersion=&quot;0&quot;
+fi
+
+versionComparison=`echo &quot;$storedVersion &lt; $currentVersion&quot; | bc -l`
+# This will be 0 if the current receipt is greater than or equal to current version of the script
+
+### Printer Install ###
+# If the queue already exists (returns 0), we don&apos;t need to reinstall it.
+/usr/bin/lpstat -p $printername
+if [ $? -eq 0 ]; then
+	if [ $versionComparison == 0 ]; then
+		# We are at the current or greater version
+		exit 1
+	fi
+    # We are of lesser version, and therefore we should delete the printer and reinstall.
+    /usr/sbin/lpadmin -x $printername
+fi
+
+# Now we can install the printer.
+/usr/sbin/lpadmin \
+        -p &quot;$printername&quot; \
+        -L &quot;$location&quot; \
+        -D &quot;$gui_display_name&quot; \
+        -v lpd://&quot;${address}&quot; \
+        -P &quot;$driver_ppd&quot; \
+        -o &quot;$option_1&quot; \
+        -o &quot;$option_2&quot; \
+        -o &quot;$option_3&quot; \
+        -o printer-is-shared=false \
+        -o printer-error-policy=abort-job \
+        -E
+
+# Create a receipt for the printer
+mkdir -p /private/etc/cups/deployment/receipts
+/usr/libexec/PlistBuddy -c &quot;Add :version string&quot; /private/etc/cups/deployment/receipts/$printername.plist
+/usr/libexec/PlistBuddy -c &quot;Set :version $currentVersion&quot; /private/etc/cups/deployment/receipts/$printername.plist
+
+# Permission the directories properly.
+chown -R root:_lp /private/etc/cups/deployment
+chmod -R 700 /private/etc/cups/deployment
+
+exit 0</string>
+	<key>unattended_install</key>
+	<true/>
+	<key>uninstall_method</key>
+	<string>uninstall_script</string>
+	<key>uninstall_script</key>
+	<string>#!/bin/sh
+printerName=&quot;PRINTERNAME&quot;.sacredsf.org
+/usr/sbin/lpadmin -x $printerName
+rm -f /private/etc/cups/deployment/receipts/$printerName.plist</string>
+	<key>uninstallable</key>
+	<true/>
+	<key>version</key>
+	<string>3.0</string>
+</dict>
+</plist>
