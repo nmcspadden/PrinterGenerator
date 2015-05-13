@@ -71,7 +71,7 @@ driver_ppd=&quot;/Library/Printers/PPDs/Contents/Resources/DRIVER&quot;
 currentVersion=&quot;1.0&quot;
 
 # Populate these options if you want to set specific options for the printer. E.g. duplexing installed, etc.
-option_1=&quot;HPOption_Duplexer=false&quot;
+option_1=&quot;&quot;
 option_2=&quot;&quot;
 option_3=&quot;&quot;
 
