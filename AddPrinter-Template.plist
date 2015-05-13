@@ -22,13 +22,12 @@
 # Make sure to install the required drivers first!
 
 # Variables. Edit these.
-printername=&quot;PRINTERNAME&quot;.sacredsf.org
+printername=&quot;PRINTERNAME&quot;
 location=&quot;LOCATION&quot;
-gui_display_name=$location
-address=$printername
+gui_display_name=&quot;DISPLAY_NAME&quot;
+address=&quot;ADDRESS&quot;
 driver_ppd=&quot;/Library/Printers/PPDs/Contents/Resources/DRIVER&quot;
-currentVersion=&quot;3.0&quot;
-
+currentVersion=&quot;1.0&quot;
 
 ### Determine if receipt is installed ###
 if [ -e /private/etc/cups/deployment/receipts/$printername.plist ]; then
@@ -64,16 +63,17 @@ fi
 	<string>#!/bin/sh
 
 # Variables. Edit these.
-printername=&quot;PRINTERNAME&quot;.sacredsf.org
+printername=&quot;PRINTERNAME&quot;
 location=&quot;LOCATION&quot;
-gui_display_name=$location
-address=$printername
+gui_display_name=&quot;DISPLAY_NAME&quot;
+address=&quot;ADDRESS&quot;
 driver_ppd=&quot;/Library/Printers/PPDs/Contents/Resources/DRIVER&quot;
+currentVersion=&quot;1.0&quot;
+
 # Populate these options if you want to set specific options for the printer. E.g. duplexing installed, etc.
 option_1=&quot;HPOption_Duplexer=false&quot;
 option_2=&quot;&quot;
 option_3=&quot;&quot;
-currentVersion=&quot;3.0&quot;
 
 ### Determine if receipt is installed ###
 if [ -e /private/etc/cups/deployment/receipts/$printername.plist ]; then
@@ -128,12 +128,12 @@ exit 0</string>
 	<string>uninstall_script</string>
 	<key>uninstall_script</key>
 	<string>#!/bin/sh
-printerName=&quot;PRINTERNAME&quot;.sacredsf.org
+printerName=&quot;PRINTERNAME&quot;
 /usr/sbin/lpadmin -x $printerName
 rm -f /private/etc/cups/deployment/receipts/$printerName.plist</string>
 	<key>uninstallable</key>
 	<true/>
 	<key>version</key>
-	<string>3.0</string>
+	<string>1.0</string>
 </dict>
 </plist>
