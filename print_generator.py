@@ -28,7 +28,7 @@ f.close()
 newPlist = templatePlist
 newPlist['name'] = "AddPrinter-" + args.printername
 
-if args(.csv):
+if args.csv:
 	# A CSV was found, use that for all data.
 	with open(args.csv, mode='r') as infile:
 		reader = csv.reader(infile)
