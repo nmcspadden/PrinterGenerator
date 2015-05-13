@@ -12,9 +12,9 @@ import csv
 import argparse
 
 parser = argparse.ArgumentParser(description='Generate installcheck_script and postinstall_script for Munki nopkg printer pkginfos.')
-parser.add_argument('printername', help='full IP or simple domain of the printer')
-parser.add_argument('location', help='human readable name of printer')
-parser.add_argument('driver', help='name of driver file in /Library/Printers/PPDs/Contents/Resources/')
+parser.add_argument('--printername', help='full IP or simple domain of the printer')
+parser.add_argument('--location', help='human readable name of printer')
+parser.add_argument('--driver', help='name of driver file in /Library/Printers/PPDs/Contents/Resources/')
 parser.add_argument('--address', help='address of printer')
 parser.add_argument('--displayname', help='cosmetic name for Munki')
 parser.add_argument('--desc', help='cosmetic description for Munki')
@@ -26,17 +26,20 @@ f = open('AddPrinter-Template.plist', 'rb')
 templatePlist = readPlist(f)
 f.close()
 newPlist = templatePlist
-newPlist['name'] = "AddPrinter-" + args.printername
+#newPlist['name'] = "AddPrinter-" + str(args.printername)
 
 if args.csv:
 	# A CSV was found, use that for all data.
 	with open(args.csv, mode='r') as infile:
 		reader = csv.reader(infile)
+		next(reader, None) # skip the header row
 		for row in reader:
-			# each row contains 6 elements
+			# each row contains 6 elements:
+			# Printer name, location, display name, address, driver, description
 			# First, change the plist keys in the pkginfo itself
 			newPlist['display_name'] = row[2]
 			newPlist['description'] = row[5]
+			newPlist['name'] = row[0] # set to printer name
 			# Now change the variables in the installcheck_script
 			newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", row[0])
 			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", row[1].replace('"', ''))
@@ -52,7 +55,7 @@ if args.csv:
 			# Now change the one variable in the uninstall_script
 			newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", row[0])
 			# Write out the file
-			newFileName = "AddPrinter-" + args.printername + "-1.0.pkginfo"
+			newFileName = "AddPrinter-" + row[0] + "-1.0.pkginfo"
 			f = open(newFileName, 'wb')
 			writePlist(newPlist, f)
 			f.close()
@@ -77,7 +80,7 @@ else:
 
 	newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
 
-	newFileName = "AddPrinter-" + args.printername + "-1.0.plist"
+	newFileName = "AddPrinter-" + str(args.printername) + "-1.0.plist"
 	f = open(newFileName, 'wb')
 	writePlist(newPlist, f)
 	f.close()
