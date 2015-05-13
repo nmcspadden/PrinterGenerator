@@ -25,7 +25,6 @@ vars(args)
 f = open('AddPrinter-Template.plist', 'rb')
 templatePlist = readPlist(f)
 f.close()
-newPlist = templatePlist
 #newPlist['name'] = "AddPrinter-" + str(args.printername)
 
 if args.csv:
@@ -34,6 +33,7 @@ if args.csv:
 		reader = csv.reader(infile)
 		next(reader, None) # skip the header row
 		for row in reader:
+			newPlist = dict(templatePlist)
 			# each row contains 6 elements:
 			# Printer name, location, display name, address, driver, description
 			# First, change the plist keys in the pkginfo itself
@@ -41,19 +41,19 @@ if args.csv:
 			newPlist['description'] = row[5]
 			newPlist['name'] = row[0] # set to printer name
 			# Now change the variables in the installcheck_script
-			newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", row[0])
+			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("PRINTERNAME", row[0])
 			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", row[1].replace('"', ''))
 			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
 			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", row[3])
 			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", row[4])
 			# Now change the variables in the postinstall_script
-			newPlist['postinstall_script'] = templatePlist['postinstall_script'].replace("PRINTERNAME", row[0])
+			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("PRINTERNAME", row[0])
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", row[1].replace('"', ''))
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", row[3])
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", row[4])
 			# Now change the one variable in the uninstall_script
-			newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", row[0])
+			newPlist['uninstall_script'] = newPlist['uninstall_script'].replace("PRINTERNAME", row[0])
 			# Write out the file
 			newFileName = "AddPrinter-" + row[0] + "-1.0.pkginfo"
 			f = open(newFileName, 'wb')
