@@ -15,9 +15,7 @@ from sys import exit
 def getOptionsString(optionList):
     optionsString = ''
     for option in optionList:
-        print "Option: %s" % option
         optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
-    print "OptionsString: %s" % optionsString
     return optionsString
 
 parser = argparse.ArgumentParser(description='Generate installcheck_script and postinstall_script for Munki nopkg printer pkginfos.')
