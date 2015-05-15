@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>autoremove</key>
+	<false/>
+	<key>catalogs</key>
+	<array>
+		<string>testing</string>
+	</array>
+	<key>description</key>
+	<string>DESCRIPTION</string>
+	<key>display_name</key>
+	<string>DISPLAY_NAME</string>
+	<key>installcheck_script</key>
+	<string>#!/usr/bin/python
+import subprocess
+import sys
+
+printerOptions = { OPTIONS }
+
+cmd = ['/usr/bin/lpoptions', '-p', PRINTERNAME, '-l']
+proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(lpoptOut, lpoptErr) = proc.communicate()
+
+if lpoptErr:
+    sys.exit(0)
+
+for option in lpoptOut.splitlines():
+    for myOption in printerOptions.keys():
+        optionName = option.split("/", 1)[0]
+        optionValues = option.split("/",1)[1].split(":")[1].strip().split(" ")
+        for opt in optionValues:
+            if "*" in opt:
+                actualOptionValue = opt.replace('*', '')
+                break
+        if optionName == myOption:
+            if not printerOptions[myOption] == actualOptionValue:
+                sys.exit(0)
+                
+sys.exit(1)</string>
+	<key>installer_type</key>
+	<string>nopkg</string>
+	<key>minimum_os_version</key>
+	<string>10.7.0</string>
+	<key>name</key>
+	<string>AddPrinter-PRINTERNAME</string>
+	<key>postinstall_script</key>
+	<string>#!/usr/bin/python
+import subprocess
+import sys
+
+# Populate these options if you want to set specific options for the printer. E.g. duplexing installed, etc.
+printerOptions = { OPTIONS }
+
+cmd = [ '/usr/bin/lpadmin', '-x', PRINTERNAME ]
+proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(lpadminxOut, lpadminxErr) = proc.communicate()
+
+# Install the printer
+cmd = [ '/usr/sbin/lpadmin',
+        '-p', 'PRINTERNAME',
+        '-L', 'LOCATION',
+        '-D', 'DISPLAY_NAME',
+        '-v', 'lpd://ADDRESS',
+        '-P', '/Library/Printers/PPDs/Contents/Resources/DRIVER',
+        '-E',
+        '-o', 'printer-is-shared=false',
+        '-o', 'printer-error-policy=abort-job' ]
+
+for option in printerOptions.keys():
+    cmd.append("-o")
+    cmd.append(str(option) + "=" +  str(printerOptions[option]))
+
+proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(lpadminOut, lpadminErr) = proc.communicate()
+
+if lpadminErr:
+    print "Error: %s" % lpadminErr
+    sys.exit(1)
+print "Results: %s" % lpadminOut    
+sys.exit(0)</string>
+	<key>unattended_install</key>
+	<true/>
+	<key>uninstall_method</key>
+	<string>uninstall_script</string>
+	<key>uninstall_script</key>
+	<string>#!/bin/bash
+/usr/sbin/lpadmin -x PRINTERNAME</string>
+	<key>uninstallable</key>
+	<true/>
+	<key>version</key>
+	<string>1.0</string>
+</dict>
+</plist>

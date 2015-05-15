@@ -10,22 +10,23 @@ import string
 from plistlib import readPlist, writePlist
 import csv
 import argparse
+from sys import exit
 
 parser = argparse.ArgumentParser(description='Generate installcheck_script and postinstall_script for Munki nopkg printer pkginfos.')
 parser.add_argument('--printername', help='full IP or simple domain of the printer')
-parser.add_argument('--location', help='human readable name of printer')
 parser.add_argument('--driver', help='name of driver file in /Library/Printers/PPDs/Contents/Resources/')
 parser.add_argument('--address', help='address of printer')
+parser.add_argument('--location', help='human readable name of printer')
 parser.add_argument('--displayname', help='cosmetic name for Munki')
 parser.add_argument('--desc', help='cosmetic description for Munki')
 parser.add_argument('--csv', help='path to CSV file containing printer info')
+parser.add_argument('--options', nargs='*', dest='options')
 args = parser.parse_args()
-vars(args)
+
 
 f = open('AddPrinter-Template.plist', 'rb')
 templatePlist = readPlist(f)
 f.close()
-#newPlist['name'] = "AddPrinter-" + str(args.printername)
 
 if args.csv:
 	# A CSV was found, use that for all data.
@@ -36,22 +37,21 @@ if args.csv:
 			newPlist = dict(templatePlist)
 			# each row contains 6 elements:
 			# Printer name, location, display name, address, driver, description
+			# optional 7th column: options in the form of "Option=Value, Option2=Value, Option3=Value"
 			# First, change the plist keys in the pkginfo itself
 			newPlist['display_name'] = row[2]
 			newPlist['description'] = row[5]
-			newPlist['name'] = row[0] # set to printer name
+			newPlist['name'] = "AddPrinter-" + str(row[0]) # set to printer name
 			# Now change the variables in the installcheck_script
 			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("PRINTERNAME", row[0])
-			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", row[1].replace('"', ''))
-			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
-			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", row[3])
-			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", row[4])
+			newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("OPTIONS", ...something)
 			# Now change the variables in the postinstall_script
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("PRINTERNAME", row[0])
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", row[1].replace('"', ''))
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", row[3])
 			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", row[4])
+			newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("OPTIONS", ...something)
 			# Now change the one variable in the uninstall_script
 			newPlist['uninstall_script'] = newPlist['uninstall_script'].replace("PRINTERNAME", row[0])
 			# Write out the file
@@ -60,24 +60,54 @@ if args.csv:
 			writePlist(newPlist, f)
 			f.close()
 else:
-	if(args.desc):
-		newPlist['description'] = args.desc
+    if not args.printername:
+        print >> sys.stderr, ('ERROR: No printer name given!')
+        parser.print_usage()
+        sys.exit(1)
+    if not args.driver:
+        print >> sys.stderr, ('ERROR: No path to driver given!')
+        parser.print_usage()
+        sys.exit(1)
+    if not args.address:
+        print >> sys.stderr, ('ERROR: No address given!')
+        parser.print_usage()
+        sys.exit(1)
+        
+	if args.desc:
+		description = args.desc
 	else:
-		newPlist['description'] = ""
+		description = ""
 
-	if(args.displayname):
-		newPlist['display_name'] = args.displayname
+	if args.displayname:
+		displayName = args.displayname
 	else:
-		newPlist['display_name'] = newPlist['name']
+		displayName = args.printername
+		
+	if args.location:
+	    location = args.location
+	else:
+	    location = args.printername
 
+
+    newPlist = dict(templatePlist)
+    if args.options:
+        for option in args.options:
+            optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
+   # root pkginfo variable replacement
+    newPlist['description'] = description
+    newPlist['display_name'] = displayName
+    newPlist['name'] = "AddPrinter-" + str(args.printername)
+    # installcheck_script variable replacement
 	newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", args.printername)
-	newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", args.location.replace('"', ''))
+	newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", location.replace('"', ''))
 	newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", args.driver.replace('"', ''))
-
+    newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("OPTIONS", optionsString)            
+    # postinstall_script variable replacement
 	newPlist['postinstall_script'] = templatePlist['postinstall_script'].replace("PRINTERNAME", args.printername)
-	newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", args.location.replace('"', ''))
+	newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", location.replace('"', ''))
 	newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", args.driver.replace('"', ''))
-
+    newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("OPTIONS", optionsString)            
+    # uninstall_script variable replacement
 	newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
 
 	newFileName = "AddPrinter-" + str(args.printername) + "-1.0.plist"
