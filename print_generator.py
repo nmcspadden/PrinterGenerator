@@ -23,10 +23,10 @@ parser.add_argument('--printername', help='full IP or simple domain of the print
 parser.add_argument('--driver', help='name of driver file in /Library/Printers/PPDs/Contents/Resources/')
 parser.add_argument('--address', help='address of printer')
 parser.add_argument('--location', help='human readable name of printer')
-parser.add_argument('--displayname', help='cosmetic name for Munki')
 parser.add_argument('--desc', help='cosmetic description for Munki')
 parser.add_argument('--options', nargs='*', dest='options', help='options in form of Option=Key Option2=Key Option3=Key, etc')
 parser.add_argument('--csv', help='path to CSV file containing printer info')
+parser.add_argument('--version', help='Version number of Munki pkginfo. Optional. Defaults to 1.0.', default='1.0')
 args = parser.parse_args()
 
 
@@ -52,6 +52,8 @@ if args.csv:
             newPlist['display_name'] = row[2]
             newPlist['description'] = row[5]
             newPlist['name'] = "AddPrinter-" + str(row[0]) # set to printer name
+            # Default choice for versions for CSV is 1.0.
+            newPlist['version'] = "1.0"
             # Now change the variables in the installcheck_script
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("PRINTERNAME", row[0])
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("OPTIONS", theOptionString)
@@ -98,6 +100,10 @@ else:
     else:
         location = args.printername
 
+    if args.version:
+        version = str(args.version)
+    else:
+        version = "1.0"
 
     newPlist = dict(templatePlist)
     if args.options:
@@ -106,6 +112,7 @@ else:
     newPlist['description'] = description
     newPlist['display_name'] = displayName
     newPlist['name'] = "AddPrinter-" + str(args.printername)
+    newPlist['version'] = version
     # installcheck_script variable replacement
     newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", args.printername)
     newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", location.replace('"', ''))
@@ -119,7 +126,7 @@ else:
     # uninstall_script variable replacement
     newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
 
-    newFileName = "AddPrinter-" + str(args.printername) + "-1.0.pkginfo"
+    newFileName = "AddPrinter-" + str(args.printername) + "-%s.pkginfo" % str(version)
     f = open(newFileName, 'wb')
     writePlist(newPlist, f)
     f.close()
