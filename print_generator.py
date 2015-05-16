@@ -10,7 +10,7 @@ import string
 from plistlib import readPlist, writePlist
 import csv
 import argparse
-from sys import exit
+import sys
 
 def getOptionsString(optionList):
     optionsString = ''
@@ -25,7 +25,6 @@ parser.add_argument('--address', help='address of printer')
 parser.add_argument('--location', help='human readable name of printer')
 parser.add_argument('--displayname', help='cosmetic name for Munki')
 parser.add_argument('--desc', help='cosmetic description for Munki')
-parser.add_argument('--csv', help='path to CSV file containing printer info')
 parser.add_argument('--options', nargs='*', dest='options', help='options in form of Option=Key Option2=Key Option3=Key, etc')
 args = parser.parse_args()
 
@@ -119,7 +118,7 @@ else:
     # uninstall_script variable replacement
     newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
 
-    newFileName = "AddPrinter-" + str(args.printername) + "-1.0.plist"
+    newFileName = "AddPrinter-" + str(args.printername) + "-1.0.pkginfo"
     f = open(newFileName, 'wb')
     writePlist(newPlist, f)
     f.close()
