@@ -12,11 +12,11 @@ def getOptionsString(optionList):
         optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
     return optionsString
 
-parser = argparse.ArgumentParser(description='Generate installcheck_script and postinstall_script for Munki nopkg printer pkginfos.')
+parser = argparse.ArgumentParser(description='Generate a Munki nopkg-style pkginfo for printer installation.')
 parser.add_argument('--printername', help='Name of printer queue. Required.')
 parser.add_argument('--driver', help='Name of driver file in /Library/Printers/PPDs/Contents/Resources/. Required.')
 parser.add_argument('--address', help='IP or DNS address of printer. Required.')
-parser.add_argument('--location', help='Location name for printer. Required.')
+parser.add_argument('--location', help='Location name for printer. Optional. Defaults to printername.')
 parser.add_argument('--displayname', help='Display name for printer (and Munki pkginfo). Optional. Defaults to printername.')
 parser.add_argument('--desc', help='Description for Munki pkginfo only. Optional.')
 parser.add_argument('--options', nargs='*', dest='options', help='Printer options in form of space-delimited Option1=Key Option2=Key Option3=Key, etc. Optional.')
