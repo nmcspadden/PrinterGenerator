@@ -26,6 +26,7 @@ parser.add_argument('--location', help='human readable name of printer')
 parser.add_argument('--displayname', help='cosmetic name for Munki')
 parser.add_argument('--desc', help='cosmetic description for Munki')
 parser.add_argument('--options', nargs='*', dest='options', help='options in form of Option=Key Option2=Key Option3=Key, etc')
+parser.add_argument('--csv', help='path to CSV file containing printer info')
 args = parser.parse_args()
 
 
