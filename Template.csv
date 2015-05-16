@@ -1,0 +1,2 @@
+Printer Name,Location,Display Name,Address,Driver,Description,OptionsMinor_Jimenez_Printer,MS B-140,Minor Jimenez Printer,172.19.22.56,/Library/Printers/PPDs/Contents/Resources/Kyocera FS-4100DN.ppd,,HPOptionDuplexer=True HP500Sheet=True
+MyPrinterQueue,Tech Office,My Printer Queue, 10.0.0.1, HP officejet 5500 series.ppd.gz,Black and white printer in Tech Office,HPOptionDuplexer=True OutputMode=normal
