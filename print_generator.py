@@ -19,14 +19,15 @@ def getOptionsString(optionList):
     return optionsString
 
 parser = argparse.ArgumentParser(description='Generate installcheck_script and postinstall_script for Munki nopkg printer pkginfos.')
-parser.add_argument('--printername', help='full IP or simple domain of the printer')
-parser.add_argument('--driver', help='name of driver file in /Library/Printers/PPDs/Contents/Resources/')
-parser.add_argument('--address', help='address of printer')
-parser.add_argument('--location', help='human readable name of printer')
-parser.add_argument('--desc', help='cosmetic description for Munki')
-parser.add_argument('--options', nargs='*', dest='options', help='options in form of Option=Key Option2=Key Option3=Key, etc')
-parser.add_argument('--csv', help='path to CSV file containing printer info')
+parser.add_argument('--printername', help='Name of printer queue. Required.')
+parser.add_argument('--driver', help='Name of driver file in /Library/Printers/PPDs/Contents/Resources/. Required.')
+parser.add_argument('--address', help='IP or DNS address of printer. Required.')
+parser.add_argument('--location', help='Location name for printer. Required.')
+parser.add_argument('--displayname', help='Display name for printer (and Munki pkginfo). Optional. Defaults to printername.')
+parser.add_argument('--desc', help='Description for Munki pkginfo only. Optional.')
+parser.add_argument('--options', nargs='*', dest='options', help='Printer options in form of space-delimited Option1=Key Option2=Key Option3=Key, etc. Optional.')
 parser.add_argument('--version', help='Version number of Munki pkginfo. Optional. Defaults to 1.0.', default='1.0')
+parser.add_argument('--csv', help='Path to CSV file containing printer info. If CSV is provided, all other options are ignored.')
 args = parser.parse_args()
 
 
