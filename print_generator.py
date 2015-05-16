@@ -1,10 +1,4 @@
 #!/usr/bin/python
-#PPRINTERNAME = fqdn
-#LOCATION = human readable name
-#DRIVER = actual driver file
-#DESCRIPTION = description for Munki
-#DISPLAY_NAME = Cosmetic name for Munki
-
 import os
 import string
 from plistlib import readPlist, writePlist
@@ -46,7 +40,6 @@ if args.csv:
             # Printer name, location, display name, address, driver, description, options
             # options in the form of "Option=Value Option2=Value Option3=Value"
             theOptionString = ''
-            print "Row 6: %s" % row[6]
             if row[6] != "":
                 theOptionString = getOptionsString(row[6].split(" "))
             # First, change the plist keys in the pkginfo itself
