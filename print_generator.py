@@ -99,9 +99,12 @@ else:
     else:
         version = "1.0"
 
-    newPlist = dict(templatePlist)
     if args.options:
         optionsString = getOptionsString(args.options)
+    else:
+        optionsString = ''
+
+    newPlist = dict(templatePlist)
    # root pkginfo variable replacement
     newPlist['description'] = description
     newPlist['display_name'] = displayName
