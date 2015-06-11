@@ -36,24 +36,44 @@ A full description of usage is available with:
 
 ```
 ./print_generator.py -h
-usage: print_generator.py [-h] [--printername PRINTERNAME] 
-						  [--driver DRIVER]
-                          [--address ADDRESS] 
-                          [--location LOCATION]
-                          [--displayname DISPLAYNAME] 
-                          [--desc DESC]
+usage: print_generator.py [-h] [--printername PRINTERNAME] [--driver DRIVER]
+                          [--address ADDRESS] [--location LOCATION]
+                          [--displayname DISPLAYNAME] [--desc DESC]
                           [--options [OPTIONS [OPTIONS ...]]]
-                          [--version VERSION] 
-                          [--csv CSV]
+                          [--version VERSION] [--csv CSV]
 
 Generate a Munki nopkg-style pkginfo for printer installation.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --printername PRINTERNAME
+                        Name of printer queue. May not contain spaces, tabs, #
+                        or /. Required.
+  --driver DRIVER       Name of driver file in
+                        /Library/Printers/PPDs/Contents/Resources/. Can be
+                        relative or full path. Required.
+  --address ADDRESS     IP or DNS address of printer. If no protocol is
+                        specified, defaults to lpd://. Required.
+  --location LOCATION   Location name for printer. Optional. Defaults to
+                        printername.
+  --displayname DISPLAYNAME
+                        Display name for printer (and Munki pkginfo).
+                        Optional. Defaults to printername.
+  --desc DESC           Description for Munki pkginfo only. Optional.
+  --options [OPTIONS [OPTIONS ...]]
+                        Printer options in form of space-delimited Option1=Key
+                        Option2=Key Option3=Key, etc. Optional.
+  --version VERSION     Version number of Munki pkginfo. Optional. Defaults to
+                        1.0.
+  --csv CSV             Path to CSV file containing printer info. If CSV is
+                        provided, all other options are ignored.
 ```
 
 As in the above CSV section, the arguments are all the same:
 
-* `--printername`: Name of the print queue. **Required.**
-* `--driver`: Name of the driver file in /Library/Printers/PPDs/Contents/Resources/. **Required.**
-* `--address`: The IP or DNS address of the printer. The template uses the form: `lpr://ADDRESS`.  Change to another protocol in the template if necessary. **Required.**
+* `--printername`: Name of the print queue. May not contain spaces, tabs, "#" or "/" characters. **Required.**
+* `--driver`: Name of the driver file in /Library/Printers/PPDs/Contents/Resources/. This can be either a relative path (i.e. the filename in the path above), or a full path (starting with "/Library"). **Required.**
+* `--address`: The IP or DNS address of the printer. If no protocol is specified, `lpd://ADDRESS` will be used.  **Required.**
 * `--location`: The "location" of the printer. If not provided, this will default to the value of `--printername`.
 * `--displayname`: The visual name that shows up in the Printers & Scanners pane of the System Preferences, and in the print dialogue boxes.  Also used in the Munki pkginfo.  If not provided, this will default to the value of `--printername`.
 * `--desc`: Used only in the Munki pkginfo. If not provided, will default to an empty string ("").
