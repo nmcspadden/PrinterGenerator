@@ -5,6 +5,7 @@ from plistlib import readPlist, writePlist
 import csv
 import argparse
 import sys
+import re
 
 def getOptionsString(optionList):
     optionsString = ''
@@ -104,6 +105,25 @@ else:
     else:
         optionsString = ''
 
+    if args.driver.startswith('/Library'):
+        # Assume the user passed in a full path rather than a relative filename
+        driver = args.driver
+    else:
+        # Assume only a relative filename
+        driver = os.path.join('/Library/Printers/PPDs/Contents/Resources', args.driver)
+        
+    if '://' in args.address:
+        # Assume the user passed in a full address and protocol
+        address = args.address
+    else:
+        # Assume the user wants to use the default, lpd://
+        address = 'lpd://' + args.address
+        
+    if re.search(r"[\s#/]", args.printername):
+        # printernames can't contain spaces, tabs, # or /.  See lpadmin manpage for details.
+        print >> sys.stderr, ("ERROR: Printernames can't contain spaces, tabs, # or /.")
+        sys.exit(1)
+
     newPlist = dict(templatePlist)
    # root pkginfo variable replacement
     newPlist['description'] = description
@@ -112,15 +132,15 @@ else:
     newPlist['version'] = version
     # installcheck_script variable replacement
     newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", args.printername)
-    newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", location.replace('"', ''))
-    newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", args.driver.replace('"', ''))
+    #newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", location.replace('"', ''))
+    #newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", driver.replace('"', ''))
     newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("OPTIONS", optionsString)            
     # postinstall_script variable replacement
     newPlist['postinstall_script'] = templatePlist['postinstall_script'].replace("PRINTERNAME", args.printername)
-    newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", args.address)
+    newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", address)
     newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DISPLAY_NAME", displayName)
     newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", location.replace('"', ''))
-    newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", args.driver.replace('"', ''))
+    newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", driver.replace('"', ''))
     newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("OPTIONS", optionsString)            
     # uninstall_script variable replacement
     newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
