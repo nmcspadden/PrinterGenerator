@@ -16,17 +16,29 @@
 	<string>#!/usr/bin/python
 import subprocess
 import sys
+import shlex
 
 printerOptions = { OPTIONS }
 
 cmd = ['/usr/bin/lpoptions', '-p', 'PRINTERNAME', '-l']
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-(lpoptOut, lpoptErr) = proc.communicate()
+(lpoptLongOut, lpoptErr) = proc.communicate()
 
+# lpoptions -p printername -l will still exit 0 even if printername does not exist
+# but it will print to stderr
 if lpoptErr:
+    print lpoptErr
     sys.exit(0)
 
-for option in lpoptOut.splitlines():
+cmd = ['/usr/bin/lpoptions', '-p', 'PRINTERNAME']
+proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(lpoptOut, lpoptErr) = proc.communicate()
+
+#Note: lpoptions -p printername will never fail. If PRINTERNAME does not exist, it 
+#will still exit 0, but just produce no output.  
+#Thanks, cups, I was having a good day until now.
+
+for option in lpoptLongOut.splitlines():
     for myOption in printerOptions.keys():
         optionName = option.split("/", 1)[0]
         optionValues = option.split("/",1)[1].split(":")[1].strip().split(" ")
@@ -36,15 +48,26 @@ for option in lpoptOut.splitlines():
                 break
         if optionName == myOption:
             if not printerOptions[myOption] == actualOptionValue:
+                print "Found mismatch: %s is '%s', should be '%s'" % (myOption, printerOptions[myOption], actualOptionValue)
                 sys.exit(0)
-                
+
+optionDict = dict()                
+for builtOption in shlex.split(lpoptOut):
+    optionDict[builtOption.split("=")[0]] = builtOption.split("=")[1]
+    
+comparisonDict = { "device-uri":"ADDRESS", "printer-info":"DISPLAY_NAME", "printer-location":"LOCATION", "printer-make-and-model":"DRIVER" }
+for keyName in comparisonDict.keys():
+    if not comparisonDict[keyName] == optionDict[keyName]:
+        print "Settings mismatch: %s is '%s', should be '%s'" % (keyName, optionDict[keyName], comparisonDict[keyName])
+        sys.exit(0)
+
 sys.exit(1)</string>
 	<key>installer_type</key>
 	<string>nopkg</string>
 	<key>minimum_os_version</key>
 	<string>10.7.0</string>
 	<key>name</key>
-	<string>AddPrinter-PRINTERNAME</string>
+	<string>AddPrinter-DISPLAYNAME</string>
 	<key>postinstall_script</key>
 	<string>#!/usr/bin/python
 import subprocess
