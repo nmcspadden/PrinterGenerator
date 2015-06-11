@@ -13,9 +13,9 @@ def getOptionsString(optionList):
     return optionsString
 
 parser = argparse.ArgumentParser(description='Generate a Munki nopkg-style pkginfo for printer installation.')
-parser.add_argument('--printername', help='Name of printer queue. Required.')
-parser.add_argument('--driver', help='Name of driver file in /Library/Printers/PPDs/Contents/Resources/. Required.')
-parser.add_argument('--address', help='IP or DNS address of printer. Required.')
+parser.add_argument('--printername', help='Name of printer queue. May not contain spaces, tabs, # or /. Required.')
+parser.add_argument('--driver', help='Name of driver file in /Library/Printers/PPDs/Contents/Resources/. Can be relative or full path. Required.')
+parser.add_argument('--address', help='IP or DNS address of printer. If no protocol is specified, defaults to lpd://. Required.')
 parser.add_argument('--location', help='Location name for printer. Optional. Defaults to printername.')
 parser.add_argument('--displayname', help='Display name for printer (and Munki pkginfo). Optional. Defaults to printername.')
 parser.add_argument('--desc', help='Description for Munki pkginfo only. Optional.')
@@ -67,15 +67,15 @@ if args.csv:
             f.close()
 else:
     if not args.printername:
-        print >> sys.stderr, ('ERROR: No printer name given!')
+        print >> sys.stderr, (os.path.basename(sys.argv[0]) + ': error: argument --printername is required')
         parser.print_usage()
         sys.exit(1)
     if not args.driver:
-        print >> sys.stderr, ('ERROR: No path to driver given!')
+        print >> sys.stderr, (os.path.basename(sys.argv[0]) + ': error: argument --driver is required')
         parser.print_usage()
         sys.exit(1)
     if not args.address:
-        print >> sys.stderr, ('ERROR: No address given!')
+        print >> sys.stderr, (os.path.basename(sys.argv[0]) + ': error: argument --address is required')
         parser.print_usage()
         sys.exit(1)
         
