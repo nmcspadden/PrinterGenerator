@@ -151,17 +151,29 @@ The output pkginfo file generated:
 	<string>#!/usr/bin/python
 import subprocess
 import sys
+import shlex
 
 printerOptions = { "HPOptionDuplexer":"True OutputMode",  }
 
 cmd = ['/usr/bin/lpoptions', '-p', 'MyPrinterQueue', '-l']
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-(lpoptOut, lpoptErr) = proc.communicate()
+(lpoptLongOut, lpoptErr) = proc.communicate()
 
+# lpoptions -p printername -l will still exit 0 even if printername does not exist
+# but it will print to stderr
 if lpoptErr:
+    print lpoptErr
     sys.exit(0)
 
-for option in lpoptOut.splitlines():
+cmd = ['/usr/bin/lpoptions', '-p', 'MyPrinterQueue']
+proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(lpoptOut, lpoptErr) = proc.communicate()
+
+#Note: lpoptions -p printername will never fail. If MyPrinterQueue does not exist, it 
+#will still exit 0, but just produce no output.  
+#Thanks, cups, I was having a good day until now.
+
+for option in lpoptLongOut.splitlines():
     for myOption in printerOptions.keys():
         optionName = option.split("/", 1)[0]
         optionValues = option.split("/",1)[1].split(":")[1].strip().split(" ")
@@ -171,8 +183,19 @@ for option in lpoptOut.splitlines():
                 break
         if optionName == myOption:
             if not printerOptions[myOption] == actualOptionValue:
+                print "Found mismatch: %s is '%s', should be '%s'" % (myOption, printerOptions[myOption], actualOptionValue)
                 sys.exit(0)
-                
+
+optionDict = dict()                
+for builtOption in shlex.split(lpoptOut):
+    optionDict[builtOption.split("=")[0]] = builtOption.split("=")[1]
+    
+comparisonDict = { "device-uri":"lpd://10.0.0.1", "printer-info":"My Printer Queue", "printer-location":"Tech Office", "printer-make-and-model":"HP officejet 5500 series.ppd" }
+for keyName in comparisonDict.keys():
+    if not comparisonDict[keyName] == optionDict[keyName]:
+        print "Settings mismatch: %s is '%s', should be '%s'" % (keyName, optionDict[keyName], comparisonDict[keyName])
+        sys.exit(0)
+
 sys.exit(1)</string>
 	<key>installer_type</key>
 	<string>nopkg</string>
@@ -188,7 +211,7 @@ import sys
 # Populate these options if you want to set specific options for the printer. E.g. duplexing installed, etc.
 printerOptions = { "HPOptionDuplexer":"True OutputMode",  }
 
-cmd = [ '/usr/bin/lpadmin', '-x', 'MyPrinterQueue' ]
+cmd = [ '/usr/sbin/lpadmin', '-x', 'MyPrinterQueue' ]
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (lpadminxOut, lpadminxErr) = proc.communicate()
 
@@ -196,8 +219,8 @@ proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 cmd = [ '/usr/sbin/lpadmin',
         '-p', 'MyPrinterQueue',
         '-L', 'Tech Office',
-        '-D', 'DISPLAY_NAME',
-        '-v', 'lpd://ADDRESS',
+        '-D', 'My Printer Queue',
+        '-v', 'lpd://10.0.0.1',
         '-P', '/Library/Printers/PPDs/Contents/Resources/HP officejet 5500 series.ppd.gz',
         '-E',
         '-o', 'printer-is-shared=false',
