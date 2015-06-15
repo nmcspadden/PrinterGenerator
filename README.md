@@ -9,6 +9,19 @@ See [Managing Printers with Munki](https://github.com/munki/munki/wiki/Managing-
 
 The script can either take arguments on the command line, or a CSV file containing a list of printers with all the necessary information.  
 
+The script will generate a pkginfo file.  This pkginfo file is a "nopkg" style, and thus has three separate scripts:  
+
+* installcheck_script
+* postinstall_script
+* uninstall_script
+
+The installcheck_script looks for an existing print queue named PRINTERNAME.  If it does not find one, it will exit 0 and trigger an installation request.  If it does find one, it will compare all of the options provided (DRIVER, ADDRESS, DISPLAYNAME, LOCATION, and OPTIONS) for differences.  If there are any differences, it will trigger an installation request.
+
+The postinstall_script will attempt to delete the existing print queue named PRINTERNAME first, and then will reinstall the queue with the specified options.  
+*Note that it does not check to see if the printer queue is in use at the time, so it is possible that existing print jobs will be cancelled if a user is printing when a Munki reinstall occurs.*
+
+The uninstall_script will delete the printer queue named PRINTERNAME if uninstallation is triggered.
+
 ### Using a CSV file:
 
 A template CSV file is provided to make it easy to generate multiple pkginfos in one run.  Pass the path to the csv file with `--csv`:
