@@ -8,8 +8,9 @@ import sys
 import re
 
 def getOptionsString(optionList):
+    # Despite the name, optionList is a string containing options separated by space
     optionsString = ''
-    for option in optionList:
+    for option in optionList.split(" "):
         optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
     return optionsString
 
@@ -106,7 +107,7 @@ else:
         version = "1.0"
 
     if args.options:
-        optionsString = getOptionsString(args.options)
+        optionsString = getOptionsString(args.options[0])
     else:
         optionsString = ''
 
