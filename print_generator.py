@@ -47,7 +47,7 @@ if args.csv:
             # First, change the plist keys in the pkginfo itself
             newPlist['display_name'] = row[2]
             newPlist['description'] = row[5]
-            newPlist['name'] = "AddPrinter-" + str(row[0]) # set to printer name
+            newPlist['name'] = "AddPrinter_" + str(row[0]) # set to printer name
             # Default choice for versions for CSV is 1.0.
             newPlist['version'] = "1.0"
             # Now change the variables in the installcheck_script
@@ -129,7 +129,7 @@ else:
    # root pkginfo variable replacement
     newPlist['description'] = description
     newPlist['display_name'] = displayName
-    newPlist['name'] = "AddPrinter-" + displayName.replace(" ", "")
+    newPlist['name'] = "AddPrinter_" + displayName.replace(" ", "")
     newPlist['version'] = version
     # installcheck_script variable replacement
     newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", args.printername)
