@@ -56,6 +56,7 @@ if args.csv:
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", row[1].replace('"', ''))
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", row[3])
+            newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", row[4])
             # Now change the variables in the postinstall_script
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("PRINTERNAME", row[0])
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", row[1].replace('"', ''))
