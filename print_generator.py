@@ -56,20 +56,26 @@ if args.csv:
             else:
                 # Assume the user wants to use the default, lpd://
                 address = 'lpd://' + row[3]
-
+            # Append the driver path to the driver file specified in the csv
+            driver = '/Library/Printers/PPDs/Contents/Resources/%s' % row[4]
+            base_driver = row[4]
+            if row[4].endswith('.gz'):
+                base_driver = row[4].replace('.gz', '')
+            if base_driver.endswith('.ppd'):
+                base_driver = base_driver.replace('.ppd', '')
             # Now change the variables in the installcheck_script
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("PRINTERNAME", row[0])
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("OPTIONS", theOptionString)
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", row[1].replace('"', ''))
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", address)
-            newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", row[4])
+            newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", base_driver)
             # Now change the variables in the postinstall_script
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("PRINTERNAME", row[0])
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", row[1].replace('"', ''))
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", address)
-            newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", row[4])
+            newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", driver)
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("OPTIONS", theOptionString)
             # Now change the one variable in the uninstall_script
             newPlist['uninstall_script'] = newPlist['uninstall_script'].replace("PRINTERNAME", row[0])

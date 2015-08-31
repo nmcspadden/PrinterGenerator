@@ -86,7 +86,7 @@ cmd = [ '/usr/sbin/lpadmin',
         '-L', 'LOCATION',
         '-D', 'DISPLAY_NAME',
         '-v', 'ADDRESS',
-        '-P', 'DRIVER',
+        '-P', "DRIVER",
         '-E',
         '-o', 'printer-is-shared=false',
         '-o', 'printer-error-policy=abort-job' ]
