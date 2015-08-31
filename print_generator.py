@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import os
-import string
 from plistlib import readPlist, writePlist
 import csv
 import argparse
@@ -50,18 +49,26 @@ if args.csv:
             newPlist['name'] = "AddPrinter_" + str(row[0]) # set to printer name
             # Default choice for versions for CSV is 1.0.
             newPlist['version'] = "1.0"
+            # Check for a protocol listed in the address
+            if '://' in row[3]:
+                # Assume the user passed in a full address and protocol
+                address = row[3]
+            else:
+                # Assume the user wants to use the default, lpd://
+                address = 'lpd://' + row[3]
+
             # Now change the variables in the installcheck_script
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("PRINTERNAME", row[0])
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("OPTIONS", theOptionString)
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("LOCATION", row[1].replace('"', ''))
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
-            newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", row[3])
+            newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", address)
             newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("DRIVER", row[4])
             # Now change the variables in the postinstall_script
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("PRINTERNAME", row[0])
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("LOCATION", row[1].replace('"', ''))
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DISPLAY_NAME", row[2].replace('"', ''))
-            newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", row[3])
+            newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("ADDRESS", address)
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("DRIVER", row[4])
             newPlist['postinstall_script'] = newPlist['postinstall_script'].replace("OPTIONS", theOptionString)
             # Now change the one variable in the uninstall_script
