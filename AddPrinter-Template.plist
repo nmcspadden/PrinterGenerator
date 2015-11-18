@@ -47,7 +47,7 @@ for option in lpoptLongOut.splitlines():
                 actualOptionValue = opt.replace('*', '')
                 break
         if optionName == myOption:
-            if not printerOptions[myOption] == actualOptionValue:
+            if not printerOptions[myOption].lower() == actualOptionValue.lower():
                 print "Found mismatch: %s is '%s', should be '%s'" % (myOption, printerOptions[myOption], actualOptionValue)
                 sys.exit(0)
 
