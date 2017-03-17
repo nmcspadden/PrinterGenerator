@@ -10,7 +10,10 @@ def getOptionsString(optionList):
     # optionList should be a list item
     optionsString = ''
     for option in optionList:
-        optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
+        if option == optionList[-1]:
+            optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1]))
+        else:
+            optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
     return optionsString
 
 parser = argparse.ArgumentParser(description='Generate a Munki nopkg-style pkginfo for printer installation.')
@@ -124,7 +127,8 @@ else:
         version = "1.0"
 
     if args.options:
-        optionsString = getOptionsString(args.options[0])
+        optionsString = str(args.options[0]).split(' ')
+        optionsString = getOptionsString(optionsString)
     else:
         optionsString = ''
 
