@@ -124,7 +124,8 @@ else:
         version = "1.0"
 
     if args.options:
-        optionsString = getOptionsString(args.options[0])
+        optionsString = str(args.options[0]).split(' ')
+        optionsString = getOptionsString(optionsString)
     else:
         optionsString = ''
 
