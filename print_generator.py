@@ -16,7 +16,6 @@ def getOptionsString(optionList):
             optionsString += "\"%s\":\"%s\"" % (str(option.split('=')[0]), str(option.split('=')[1])) + ', '
     return optionsString
 
-
 parser = argparse.ArgumentParser(description='Generate a Munki nopkg-style pkginfo for printer installation.')
 parser.add_argument('--printername', help='Name of printer queue. May not contain spaces, tabs, # or /. Required.')
 parser.add_argument('--driver', help='Name of driver file in /Library/Printers/PPDs/Contents/Resources/. Can be relative or full path. Required.')
