@@ -40,8 +40,8 @@ if args.csv:
         next(reader, None) # skip the header row
         for row in reader:
             newPlist = dict(templatePlist)
-            # each row contains 7 elements:
-            # Printer name, location, display name, address, driver, description, options
+            # each row contains 8 elements:
+            # Printer name, location, display name, address, driver, description, options, version
             # options in the form of "Option=Value Option2=Value Option3=Value"
             theOptionString = ''
             if row[6] != "":
@@ -50,8 +50,14 @@ if args.csv:
             newPlist['display_name'] = row[2]
             newPlist['description'] = row[5]
             newPlist['name'] = "AddPrinter_" + str(row[0]) # set to printer name
-            # Default choice for versions for CSV is 1.0.
-            newPlist['version'] = "1.0"
+            # Check for a version number
+            if row[7] != "":
+                # Assume the user specified a version number
+                version = row[7]
+            else:
+                # Use the default version of 1.0
+                version = "1.0"
+            newPlist['version'] = version
             # Check for a protocol listed in the address
             if '://' in row[3]:
                 # Assume the user passed in a full address and protocol
@@ -83,7 +89,7 @@ if args.csv:
             # Now change the one variable in the uninstall_script
             newPlist['uninstall_script'] = newPlist['uninstall_script'].replace("PRINTERNAME", row[0])
             # Write out the file
-            newFileName = "AddPrinter-" + row[0] + "-1.0.pkginfo"
+            newFileName = "AddPrinter-" + row[0] + "-" + version + ".pkginfo"
             f = open(newFileName, 'wb')
             writePlist(newPlist, f)
             f.close()
