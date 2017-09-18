@@ -41,6 +41,7 @@ The CSV file's columns should be pretty self-explanatory:
 * Description: Used only in the Munki pkginfo.
 * Options: Any printer options that should be specified. These **must** be space-delimited key=value pairs, such as "HPOptionDuplexer=True OutputMode=normal".  **Do not use commas to separate the options, because this is a comma-separated values file.**
 * Version: Used only in the Munki pkginfo.
+* Requires: Required packages for Munki pkginfo. These **must** be space-delimited, such as "CanonDriver1 CanonDriver2".
 
 The CSV file is not sanity-checked for invalid entries or blank fields, so double check your file and test your pkginfos thoroughly.
 
@@ -53,6 +54,7 @@ A full description of usage is available with:
 usage: print_generator.py [-h] [--printername PRINTERNAME] [--driver DRIVER]
                           [--address ADDRESS] [--location LOCATION]
                           [--displayname DISPLAYNAME] [--desc DESC]
+                          [--requires REQUIRES]
                           [--options [OPTIONS [OPTIONS ...]]]
                           [--version VERSION] [--csv CSV]
 
@@ -74,9 +76,11 @@ optional arguments:
                         Display name for printer (and Munki pkginfo).
                         Optional. Defaults to printername.
   --desc DESC           Description for Munki pkginfo only. Optional.
+  --requires REQUIRES   Required packages in form of space-delimited
+                        'CanonDriver1 CanonDriver2'. Optional.
   --options [OPTIONS [OPTIONS ...]]
-                        Printer options in form of space-delimited Option1=Key
-                        Option2=Key Option3=Key, etc. Optional.
+                        Printer options in form of space-delimited
+                        'Option1=Key Option2=Key Option3=Key', etc. Optional.
   --version VERSION     Version number of Munki pkginfo. Optional. Defaults to
                         1.0.
   --csv CSV             Path to CSV file containing printer info. If CSV is
@@ -91,7 +95,8 @@ As in the above CSV section, the arguments are all the same:
 * `--location`: The "location" of the printer. If not provided, this will default to the value of `--printername`.
 * `--displayname`: The visual name that shows up in the Printers & Scanners pane of the System Preferences, and in the print dialogue boxes.  Also used in the Munki pkginfo.  If not provided, this will default to the value of `--printername`.
 * `--desc`: Used only in the Munki pkginfo. If not provided, will default to an empty string ("").
-* `--options`: Any number of printer options that should be specified. These should be space-delimited key=value pairs, such as "HPOptionDuplexer=True OutputMode=normal". 
+* `--requires`: Add required packages in the Munki pkginfo. If not provided, no packages will be required.
+* `--options`: Any number of printer options that should be specified. These should be space-delimited key=value pairs, such as "HPOptionDuplexer=True OutputMode=normal".
 * `--version`: The version number of the Munki pkginfo. Defaults to "1.0".
 
 ### Figuring out options:
@@ -127,6 +132,7 @@ This is the format you must use when passing options to `--options`, or specifyi
 		--location="Tech Office" \
 		--displayname="My Printer Queue" \
 		--desc="Black and white printer in Tech Office" \
+		--requires="CanonPrinterDriver" \
 		--options="HPOptionDuplexer=True OutputMode=normal" \
 		--version=1.5
 ```
@@ -170,7 +176,7 @@ cmd = ['/usr/bin/lpoptions', '-p', 'MyPrinterQueue']
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (lpoptOut, lpoptErr) = proc.communicate()
 
-#Note: lpoptions -p printername will never fail. If MyPrinterQueue does not exist, it 
+#Note: lpoptions -p printername will never fail. If MyPrinterQueue does not exist, it
 #will still exit 0, but just produce no output.  
 #Thanks, cups, I was having a good day until now.
 
@@ -190,7 +196,7 @@ for option in lpoptLongOut.splitlines():
 optionDict = dict()                
 for builtOption in shlex.split(lpoptOut):
     optionDict[builtOption.split("=")[0]] = builtOption.split("=")[1]
-    
+
 comparisonDict = { "device-uri":"lpd://10.0.0.1", "printer-info":"My Printer Queue", "printer-location":"Tech Office", "printer-make-and-model":"HP officejet 5500 series.ppd" }
 for keyName in comparisonDict.keys():
     if not comparisonDict[keyName] == optionDict[keyName]:
@@ -239,6 +245,10 @@ if lpadminErr:
     sys.exit(1)
 print "Results: %s" % lpadminOut    
 sys.exit(0)</string>
+	<key>requires</key>
+	<array>
+		<string>CanonPrinterDriver</string>
+	</array>
 	<key>unattended_install</key>
 	<true/>
 	<key>uninstall_method</key>
