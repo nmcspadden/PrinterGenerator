@@ -160,7 +160,7 @@ import subprocess
 import sys
 import shlex
 
-printerOptions = { "HPOptionDuplexer":"True OutputMode",  }
+printerOptions = { "HPOptionDuplexer":"True", "OutputMode":"normal" }
 
 cmd = ['/usr/bin/lpoptions', '-p', 'MyPrinterQueue', '-l']
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -216,7 +216,7 @@ import subprocess
 import sys
 
 # Populate these options if you want to set specific options for the printer. E.g. duplexing installed, etc.
-printerOptions = { "HPOptionDuplexer":"True OutputMode",  }
+printerOptions = { "HPOptionDuplexer":"True", "OutputMode":"normal" }
 
 cmd = [ '/usr/sbin/lpadmin', '-x', 'MyPrinterQueue' ]
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
