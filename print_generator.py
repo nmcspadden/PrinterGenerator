@@ -186,7 +186,7 @@ else:
     newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
     # required packages
     if requires != "":
-        newPlist['requires'] = requires.split(' ')
+        newPlist['requires'] = re.split(r'(?<!\\)\w', requires)
 
     newFileName = "AddPrinter-" + str(args.printername) + "-%s.pkginfo" % str(version)
     f = open(newFileName, 'wb')
