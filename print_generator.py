@@ -30,7 +30,8 @@ parser.add_argument('--csv', help='Path to CSV file containing printer info. If 
 args = parser.parse_args()
 
 
-f = open('AddPrinter-Template.plist', 'rb')
+pwd = os.path.dirname(os.path.realpath(__file__))
+f = open(os.path.join(pwd, 'AddPrinter-Template.plist'), 'rb')
 templatePlist = readPlist(f)
 f.close()
 
@@ -186,7 +187,7 @@ else:
     newPlist['uninstall_script'] = templatePlist['uninstall_script'].replace("PRINTERNAME", args.printername)
     # required packages
     if requires != "":
-        newPlist['requires'] = requires.split(' ')
+        newPlist['requires'] = [r.replace('\\', '') for r in re.split(r"(?<!\\)\s", requires)]
 
     newFileName = "AddPrinter-" + str(args.printername) + "-%s.pkginfo" % str(version)
     f = open(newFileName, 'wb')
