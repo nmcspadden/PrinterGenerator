@@ -1,2 +1,2 @@
-Printer Name,Location,Display Name,Address,Driver,Description,Options,Version,Requires
-MyPrinterQueue,Tech Office,My Printer Queue,10.0.0.1,HP officejet 5500 series.ppd.gz,Black and white printer in Tech Office,HPOptionDuplexer=True OutputMode=normal,1.0,HPPrinterDriver
+Printer Name,Location,Display Name,Address,Driver,Description,Options,Version,Requires,Icon
+MyPrinterQueue,Tech Office,My Printer Queue,10.0.0.1,HP officejet 5500 series.ppd.gz,Black and white printer in Tech Office,HPOptionDuplexer=True OutputMode=normal,1.0,HPPrinterDriver,HP LaserJet 4250.icns
