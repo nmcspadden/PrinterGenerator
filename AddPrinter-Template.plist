@@ -60,6 +60,8 @@ for builtOption in shlex.split(lpoptOut):
     
 comparisonDict = { "device-uri":"ADDRESS", "printer-info":"DISPLAY_NAME", "printer-location":"LOCATION" }
 for keyName in comparisonDict.keys():
+    comparisonDict[keyName] = None if comparisonDict[keyName].strip() == "" else comparisonDict[keyName]
+    optionDict[keyName] = None if optionDict[keyName].strip() == "" else optionDict[keyName]
     if not comparisonDict[keyName] == optionDict[keyName]:
         print "Settings mismatch: %s is '%s', should be '%s'" % (keyName, optionDict[keyName], comparisonDict[keyName])
         sys.exit(0)
