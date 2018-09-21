@@ -42,6 +42,7 @@ The CSV file's columns should be pretty self-explanatory:
 * Options: Any printer options that should be specified. These **must** be space-delimited key=value pairs, such as "HPOptionDuplexer=True OutputMode=normal".  **Do not use commas to separate the options, because this is a comma-separated values file.**
 * Version: Used only in the Munki pkginfo.
 * Requires: Required packages for Munki pkginfo. These **must** be space-delimited, such as "CanonDriver1 CanonDriver2".
+* Icon: Optionally specify an existing icon in the Munki repo to display for the printer in Managed Software Center.
 
 The CSV file is not sanity-checked for invalid entries or blank fields, so double check your file and test your pkginfos thoroughly.
 
@@ -56,7 +57,7 @@ usage: print_generator.py [-h] [--printername PRINTERNAME] [--driver DRIVER]
                           [--displayname DISPLAYNAME] [--desc DESC]
                           [--requires REQUIRES]
                           [--options [OPTIONS [OPTIONS ...]]]
-                          [--version VERSION] [--csv CSV]
+                          [--version VERSION] [--icon ICON] [--csv CSV]
 
 Generate a Munki nopkg-style pkginfo for printer installation.
 
@@ -83,6 +84,7 @@ optional arguments:
                         'Option1=Key Option2=Key Option3=Key', etc. Optional.
   --version VERSION     Version number of Munki pkginfo. Optional. Defaults to
                         1.0.
+  --icon ICON           Name of exisiting icon in Munki repo. Optional.
   --csv CSV             Path to CSV file containing printer info. If CSV is
                         provided, all other options are ignored.
 ```
@@ -98,6 +100,7 @@ As in the above CSV section, the arguments are all the same:
 * `--requires`: Add required packages in the Munki pkginfo. If not provided, no packages will be required.
 * `--options`: Any number of printer options that should be specified. These should be space-delimited key=value pairs, such as "HPOptionDuplexer=True OutputMode=normal".
 * `--version`: The version number of the Munki pkginfo. Defaults to "1.0".
+* `--icon`: Used only in the Munki pkginfo. If not provided, will default to an empty string ("").
 
 ### Figuring out options:
 
@@ -134,6 +137,7 @@ This is the format you must use when passing options to `--options`, or specifyi
 		--desc="Black and white printer in Tech Office" \
 		--requires="CanonPrinterDriver" \
 		--options="HPOptionDuplexer=True OutputMode=normal" \
+		--icon="HP LaserJet 4250.icns" \
 		--version=1.5
 ```
 
@@ -154,6 +158,8 @@ The output pkginfo file generated:
 	<string>Black and white printer in Tech Office</string>
 	<key>display_name</key>
 	<string>My Printer Queue</string>
+	<key>icon_name</key>
+	<string>HP LaserJet 4250.icns</string>
 	<key>installcheck_script</key>
 	<string>#!/usr/bin/python
 import subprocess
@@ -176,7 +182,7 @@ cmd = ['/usr/bin/lpoptions', '-p', 'MyPrinterQueue']
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (lpoptOut, lpoptErr) = proc.communicate()
 
-#Note: lpoptions -p printername will never fail. If MyPrinterQueue does not exist, it
+#Note: lpoptions -p printername will never fail. If MyPrinterQueue does not exist, it 
 #will still exit 0, but just produce no output.  
 #Thanks, cups, I was having a good day until now.
 
@@ -189,15 +195,18 @@ for option in lpoptLongOut.splitlines():
                 actualOptionValue = opt.replace('*', '')
                 break
         if optionName == myOption:
-            if not printerOptions[myOption] == actualOptionValue:
+            if not printerOptions[myOption].lower() == actualOptionValue.lower():
                 print "Found mismatch: %s is '%s', should be '%s'" % (myOption, printerOptions[myOption], actualOptionValue)
                 sys.exit(0)
 
-optionDict = dict()                
+optionDict = {}                
 for builtOption in shlex.split(lpoptOut):
-    optionDict[builtOption.split("=")[0]] = builtOption.split("=")[1]
-
-comparisonDict = { "device-uri":"lpd://10.0.0.1", "printer-info":"My Printer Queue", "printer-location":"Tech Office", "printer-make-and-model":"HP officejet 5500 series.ppd" }
+    try:
+        optionDict[builtOption.split("=")[0]] = builtOption.split("=")[1]
+    except:
+        optionDict[builtOption.split("=")[0]] = None
+    
+comparisonDict = { "device-uri":"lpd://10.0.0.1", "printer-info":"My Printer Queue", "printer-location":"Tech Office" }
 for keyName in comparisonDict.keys():
     if not comparisonDict[keyName] == optionDict[keyName]:
         print "Settings mismatch: %s is '%s', should be '%s'" % (keyName, optionDict[keyName], comparisonDict[keyName])
@@ -209,7 +218,7 @@ sys.exit(1)</string>
 	<key>minimum_os_version</key>
 	<string>10.7.0</string>
 	<key>name</key>
-	<string>AddPrinter-MyPrinterQueue</string>
+	<string>AddPrinter_MyPrinterQueue</string>
 	<key>postinstall_script</key>
 	<string>#!/usr/bin/python
 import subprocess
@@ -228,7 +237,7 @@ cmd = [ '/usr/sbin/lpadmin',
         '-L', 'Tech Office',
         '-D', 'My Printer Queue',
         '-v', 'lpd://10.0.0.1',
-        '-P', '/Library/Printers/PPDs/Contents/Resources/HP officejet 5500 series.ppd.gz',
+        '-P', "/Library/Printers/PPDs/Contents/Resources/HP officejet 5500 series.ppd.gz",
         '-E',
         '-o', 'printer-is-shared=false',
         '-o', 'printer-error-policy=abort-job' ]

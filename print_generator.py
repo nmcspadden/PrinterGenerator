@@ -26,6 +26,7 @@ parser.add_argument('--desc', help='Description for Munki pkginfo only. Optional
 parser.add_argument('--requires', help='Required packages in form of space-delimited \'CanonDriver1 CanonDriver2\'. Optional.')
 parser.add_argument('--options', nargs='*', dest='options', help='Printer options in form of space-delimited \'Option1=Key Option2=Key Option3=Key\', etc. Optional.')
 parser.add_argument('--version', help='Version number of Munki pkginfo. Optional. Defaults to 1.0.', default='1.0')
+parser.add_argument('--icon', help='Specifies an existing icon in the Munki repo to display for the printer in Managed Software Center. Optional.')
 parser.add_argument('--csv', help='Path to CSV file containing printer info. If CSV is provided, all other options are ignored.')
 args = parser.parse_args()
 
@@ -42,8 +43,8 @@ if args.csv:
         next(reader, None) # skip the header row
         for row in reader:
             newPlist = dict(templatePlist)
-            # each row contains 9 elements:
-            # Printer name, location, display name, address, driver, description, options, version, requires
+            # each row contains 10 elements:
+            # Printer name, location, display name, address, driver, description, options, version, requires, icon
             # options in the form of "Option=Value Option2=Value Option3=Value"
             # requires in the form of "package1 package2" Note: the space seperator
             theOptionString = ''
@@ -53,6 +54,9 @@ if args.csv:
             newPlist['display_name'] = row[2]
             newPlist['description'] = row[5]
             newPlist['name'] = "AddPrinter_" + str(row[0]) # set to printer name
+            # Check for an icon
+            if row[9] != "":
+                newPlist['icon_name'] = row[9]
             # Check for a version number
             if row[7] != "":
                 # Assume the user specified a version number
@@ -143,6 +147,11 @@ else:
     else:
         requires = ""
 
+    if args.icon:
+        icon = args.icon
+    else:
+        icon = ""
+
     if args.options:
         optionsString = str(args.options[0]).split(' ')
         optionsString = getOptionsString(optionsString)
@@ -169,6 +178,7 @@ else:
     newPlist['display_name'] = displayName
     newPlist['name'] = "AddPrinter_" + displayName.replace(" ", "")
     newPlist['version'] = version
+    newPlist['icon_name'] = icon
     # installcheck_script variable replacement
     newPlist['installcheck_script'] = templatePlist['installcheck_script'].replace("PRINTERNAME", args.printername)
     newPlist['installcheck_script'] = newPlist['installcheck_script'].replace("ADDRESS", address)
