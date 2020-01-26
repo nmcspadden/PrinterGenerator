@@ -1,10 +1,19 @@
 #!/usr/bin/python
-import os
-from plistlib import readPlist, writePlist
-import csv
+from __future__ import absolute_import, print_function
+
 import argparse
-import sys
+import csv
+import os
 import re
+import sys
+
+try:
+    from plistlib import load as load_plist  # Python 3
+    from plistlib import dump as dump_plist
+except ImportError:
+    from plistlib import readPlist as load_plist  # Python 2
+    from plistlib import writePlist as dump_plist
+
 
 def getOptionsString(optionList):
     # optionList should be a list item
@@ -33,7 +42,7 @@ args = parser.parse_args()
 
 pwd = os.path.dirname(os.path.realpath(__file__))
 f = open(os.path.join(pwd, 'AddPrinter-Template.plist'), 'rb')
-templatePlist = readPlist(f)
+templatePlist = load_plist(f)
 f.close()
 
 if args.csv:
@@ -101,7 +110,7 @@ if args.csv:
             # Write out the file
             newFileName = "AddPrinter-" + row[0] + "-" + version + ".pkginfo"
             f = open(newFileName, 'wb')
-            writePlist(newPlist, f)
+            dump_plist(newPlist, f)
             f.close()
 else:
     if not args.printername:
@@ -201,5 +210,5 @@ else:
 
     newFileName = "AddPrinter-" + str(args.printername) + "-%s.pkginfo" % str(version)
     f = open(newFileName, 'wb')
-    writePlist(newPlist, f)
+    dump_plist(newPlist, f)
     f.close()
