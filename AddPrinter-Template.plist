@@ -27,15 +27,15 @@ proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 # lpoptions -p printername -l will still exit 0 even if printername does not exist
 # but it will print to stderr
 if lpoptErr:
-    print lpoptErr
+    print(lpoptErr)
     sys.exit(0)
 
 cmd = ['/usr/bin/lpoptions', '-p', 'PRINTERNAME']
 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (lpoptOut, lpoptErr) = proc.communicate()
 
-#Note: lpoptions -p printername will never fail. If PRINTERNAME does not exist, it 
-#will still exit 0, but just produce no output.  
+#Note: lpoptions -p printername will never fail. If PRINTERNAME does not exist, it
+#will still exit 0, but just produce no output.
 #Thanks, cups, I was having a good day until now.
 
 for option in lpoptLongOut.splitlines():
@@ -48,22 +48,22 @@ for option in lpoptLongOut.splitlines():
                 break
         if optionName == myOption:
             if not printerOptions[myOption].lower() == actualOptionValue.lower():
-                print "Found mismatch: %s is '%s', should be '%s'" % (myOption, printerOptions[myOption], actualOptionValue)
+                print("Found mismatch: %s is '%s', should be '%s'" % (myOption, printerOptions[myOption], actualOptionValue))
                 sys.exit(0)
 
-optionDict = {}                
+optionDict = {}
 for builtOption in shlex.split(lpoptOut):
     try:
         optionDict[builtOption.split("=")[0]] = builtOption.split("=")[1]
     except:
         optionDict[builtOption.split("=")[0]] = None
-    
+
 comparisonDict = { "device-uri":"ADDRESS", "printer-info":"DISPLAY_NAME", "printer-location":"LOCATION" }
 for keyName in comparisonDict.keys():
     comparisonDict[keyName] = None if comparisonDict[keyName].strip() == "" else comparisonDict[keyName]
     optionDict[keyName] = None if keyName not in optionDict or optionDict[keyName].strip() == "" else optionDict[keyName]
     if not comparisonDict[keyName] == optionDict[keyName]:
-        print "Settings mismatch: %s is '%s', should be '%s'" % (keyName, optionDict[keyName], comparisonDict[keyName])
+        print("Settings mismatch: %s is '%s', should be '%s'" % (keyName, optionDict[keyName], comparisonDict[keyName]))
         sys.exit(0)
 
 sys.exit(1)</string>
@@ -104,9 +104,9 @@ proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (lpadminOut, lpadminErr) = proc.communicate()
 
 if lpadminErr:
-    print "Error: %s" % lpadminErr
+    print("Error: %s" % lpadminErr)
     sys.exit(1)
-print "Results: %s" % lpadminOut    
+print("Results: %s" % lpadminOut)
 sys.exit(0)</string>
 	<key>unattended_install</key>
 	<true/>
