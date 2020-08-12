@@ -1,3 +1,6 @@
+# Update: This project is now archived and is not being developed further.
+It has been reported that this no longer works as of Catalina. If someone wishes to take over / create a new fork, please do, by all means.
+
 PrinterGenerator
 ================
 
